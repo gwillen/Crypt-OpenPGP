@@ -55,7 +55,7 @@ sub parse {
     my($type, $len, $partial, $hdrlen, $b);
     do {
         ($type, $len, $partial, $hdrlen) = $class->_parse_header($buf);
-        $b = $buf->extract($len ? $len : $buf->length - $buf->offset);
+        $b = $buf->extract($len);
         return unless $type;
     } while !$find{$type};                 ## Skip
 
