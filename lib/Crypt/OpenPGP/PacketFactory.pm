@@ -73,6 +73,10 @@ sub parse {
         eval "use $pkt_class;";
         return $class->error("Loading $pkt_class failed: $@") if $@;
         $obj = $pkt_class->parse($b, @args);
+        if (!defined $obj) {
+            return $class->error("Parsing packet of type $pkt_class failed: " .
+                $pkt_class->errstr);
+        }
     }
     else {
         $obj = { type => $type, length => $len,
