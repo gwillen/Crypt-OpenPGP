@@ -64,14 +64,20 @@ sub restore {
     my($buf) = @_;
     $ring->{blocks} = [];
     my($kb);
-    while (my $packet = Crypt::OpenPGP::PacketFactory->parse($buf)) {
-        if (ref($packet) eq "Crypt::OpenPGP::Certificate" &&
-            !$packet->is_subkey) {
-            $kb = Crypt::OpenPGP::KeyBlock->new;
-            $ring->add($kb);
+    do {
+        my $packet = Crypt::OpenPGP::PacketFactory->parse($buf);
+        if (defined $packet) {
+            if (ref($packet) eq "Crypt::OpenPGP::Certificate" &&
+                !$packet->is_subkey) {
+                $kb = Crypt::OpenPGP::KeyBlock->new;
+                $ring->add($kb);
+            }
+            $kb->add($packet) if $kb;
+        } else {
+            warn("Failed to parse packet: " .
+                Crypt::OpenPGP::PacketFactory->errstr);
         }
-        $kb->add($packet) if $kb;
-    }
+    } while($buf->offset < $buf->length);
 }
 
 sub add {
